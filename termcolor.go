@@ -94,7 +94,17 @@ func GetCode(modes ...Mode) string {
 	return code
 }
 
+//GetEscapedCode returns the needed code escaped with []
+func GetEscapedCode(modes ...Mode) string {
+	return "\\[" + GetCode(modes...) + "\\]"
+}
+
 //Format returns a strings formated with modes
 func Format(s string, modes ...Mode) string {
 	return fmt.Sprintf("%s%s%s%s", Reset(), GetCode(modes...), s, Reset())
+}
+
+//EscapedFormat returns a strings formated with modes escaped with []
+func EscapedFormat(s string, modes ...Mode) string {
+	return fmt.Sprintf("%s%s%s%s", GetEscapedCode(TermReset), GetEscapedCode(modes...), s, GetEscapedCode(TermReset))
 }
