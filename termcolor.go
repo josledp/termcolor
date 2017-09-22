@@ -6,8 +6,10 @@ import (
 )
 
 const (
-	start = "\033["
-	end   = "m"
+	escapedStart = "\\[\\033["
+	escapedEnd   = "m\\]"
+	normalStart  = "\033["
+	normalEnd    = "m"
 )
 
 //Mode type is for defining term modes
@@ -76,35 +78,38 @@ const (
 	BgHiWhite
 )
 
-//Reset returns the term code for reset colors
-func Reset() string {
-	return GetCode(TermReset)
-}
-
 //GetCode return the term code for modes
 func GetCode(modes ...Mode) string {
-	code := start
+	return getCode(normalStart, normalEnd, modes...)
+}
+
+//GetEscapedCode returns the needed code escaped (mostly for PS1 usage)
+func GetEscapedCode(modes ...Mode) string {
+	return getCode(escapedStart, escapedEnd, modes...)
+}
+
+func getCode(s string, e string, modes ...Mode) string {
+	code := s
 	for i, m := range modes {
 		if i != 0 {
 			code += ";"
 		}
 		code += strconv.Itoa(int(m))
 	}
-	code += end
+	code += e
 	return code
-}
-
-//GetEscapedCode returns the needed code escaped with []
-func GetEscapedCode(modes ...Mode) string {
-	return "\\[" + GetCode(modes...) + "\\]"
 }
 
 //Format returns a strings formated with modes
 func Format(s string, modes ...Mode) string {
-	return fmt.Sprintf("%s%s%s%s", Reset(), GetCode(modes...), s, Reset())
+	return format(s, GetCode(TermReset), GetCode(modes...))
 }
 
-//EscapedFormat returns a strings formated with modes escaped with []
+//EscapedFormat returns a strings formated with modes escaped with (mostly for PS1 usage)
 func EscapedFormat(s string, modes ...Mode) string {
-	return fmt.Sprintf("%s%s%s%s", GetEscapedCode(TermReset), GetEscapedCode(modes...), s, GetEscapedCode(TermReset))
+	return format(s, GetEscapedCode(TermReset), GetEscapedCode(modes...))
+}
+
+func format(s string, r string, m string) string {
+	return fmt.Sprintf("%s%s%s%s", r, m, s, r)
 }

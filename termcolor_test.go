@@ -6,16 +6,9 @@ import (
 	"testing"
 )
 
-func TestReset(t *testing.T) {
-	resetCode := Reset()
-	if resetCode != start+strconv.Itoa(int(TermReset))+end {
-		t.Fatalf("Reset code not ok")
-	}
-}
-
 func TestGetCode(t *testing.T) {
 	code := GetCode(Bold, FgBlue, BgBlue)
-	shouldbe := fmt.Sprintf("%s%s;%s;%s%s", start, strconv.Itoa(int(Bold)), strconv.Itoa(int(FgBlue)), strconv.Itoa(int(BgBlue)), end)
+	shouldbe := fmt.Sprintf("%s%s;%s;%s%s", normalStart, strconv.Itoa(int(Bold)), strconv.Itoa(int(FgBlue)), strconv.Itoa(int(BgBlue)), normalEnd)
 	if code != shouldbe {
 		t.Fatal("Code Bold FgBlue BgBlue not ok")
 	}
@@ -23,8 +16,24 @@ func TestGetCode(t *testing.T) {
 
 func TestFormat(t *testing.T) {
 	code := Format("hello", Bold, FgBlue, BgBlue)
-	shouldbe := fmt.Sprintf("%s%s%s;%s;%s%s%s%s", Reset(), start, strconv.Itoa(int(Bold)), strconv.Itoa(int(FgBlue)), strconv.Itoa(int(BgBlue)), end, "hello", Reset())
+	shouldbe := fmt.Sprintf("%s%s%s;%s;%s%s%s%s", GetCode(TermReset), normalStart, strconv.Itoa(int(Bold)), strconv.Itoa(int(FgBlue)), strconv.Itoa(int(BgBlue)), normalEnd, "hello", GetCode(TermReset))
 	if code != shouldbe {
 		t.Fatal("Code Bold FgBlue BgBlue not ok")
+	}
+}
+
+func TestGetEscapedCode(t *testing.T) {
+	code := GetEscapedCode(Bold, FgBlue, BgBlue)
+	shouldbe := fmt.Sprintf("%s%s;%s;%s%s", escapedStart, strconv.Itoa(int(Bold)), strconv.Itoa(int(FgBlue)), strconv.Itoa(int(BgBlue)), escapedEnd)
+	if code != shouldbe {
+		t.Fatal("Escoped Code Bold FgBlue BgBlue not ok")
+	}
+}
+
+func TestEscapedFormat(t *testing.T) {
+	code := EscapedFormat("hello", Bold, FgBlue, BgBlue)
+	shouldbe := fmt.Sprintf("%s%s%s;%s;%s%s%s%s", GetEscapedCode(TermReset), escapedStart, strconv.Itoa(int(Bold)), strconv.Itoa(int(FgBlue)), strconv.Itoa(int(BgBlue)), escapedEnd, "hello", GetEscapedCode(TermReset))
+	if code != shouldbe {
+		t.Fatal("Escoped Code Bold FgBlue BgBlue not ok")
 	}
 }
